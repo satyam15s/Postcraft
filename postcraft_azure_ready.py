@@ -2361,19 +2361,19 @@ st.markdown("""
 **What is a Postback URL?**
 A postback URL is where CPX Research sends notifications when users complete surveys and earn money.
 
-**Options for Postback URL:**
+    **Options for Postback URL:**
 
-1. **Webhook Services (Recommended):**
-   - **Webhook.site**: `https://webhook.site/your-unique-id`
-   - **RequestBin**: `https://requestbin.io/your-bin-id`
-   - **ngrok**: `https://your-ngrok-url.ngrok.io/webhook`
+    1. **Webhook Services (Recommended):**
+       - **Webhook.site**: `https://webhook.site/your-unique-id?status={status}&trans_id={trans_id}`
+       - **RequestBin**: `https://requestbin.io/your-bin-id?status={status}&trans_id={trans_id}`
+       - **ngrok**: `https://your-ngrok-url.ngrok.io/webhook?status={status}&trans_id={trans_id}`
 
-2. **Your Own Server:**
-   - `https://yourdomain.com/cpx-webhook`
-   - `https://api.yourdomain.com/survey-callback`
+    2. **Your Own Server:**
+       - `https://yourdomain.com/cpx-webhook?status={status}&trans_id={trans_id}`
+       - `https://api.yourdomain.com/survey-callback?status={status}&trans_id={trans_id}`
 
-3. **Local Development:**
-   - `http://localhost:8000/webhook` (with ngrok tunnel)
+    3. **Local Development:**
+       - `http://localhost:8000/webhook?status={status}&trans_id={trans_id}` (with ngrok tunnel)
 """)
 
 # CPX Research Paywall HTML and JavaScript
@@ -2441,7 +2441,7 @@ const script5 = {
 
 const config = {
     general_config: {
-        app_id: 12345, //number - Replace with your actual app_id
+        app_id: 28194, //number - Your CPX Research App ID
         ext_user_id: "social_media_manager_user", // string - Replace with actual user ID
         email: "", // string
         username: "", // string
@@ -2449,7 +2449,7 @@ const config = {
         subid_1: "", // string
         subid_2: "", // string
         // POSTBACK URL CONFIGURATION
-        postback_url: "https://webhook.site/your-unique-id", // Replace with your actual postback URL
+        postback_url: "https://webhook.site/4f7df42b-410e-4dce-9cbf-70c2b864ba87?status={status}&trans_id={trans_id}", // Your CPX Research postback URL
     },
     style_config: {
         text_color: "#2b2b2b", // string // hex, rgba, colorcode
@@ -2510,7 +2510,7 @@ with st.expander("🔧 How to Set Up Postback URL"):
     **1. Get a Webhook URL:**
     - Go to [webhook.site](https://webhook.site)
     - Copy your unique webhook URL
-    - Example: `https://webhook.site/abc123-def456`
+    - Example: `https://webhook.site/4f7df42b-410e-4dce-9cbf-70c2b864ba87?status={status}&trans_id={trans_id}`
     
     **2. Configure in CPX Research Dashboard:**
     - Log into your CPX Research publisher account
@@ -2523,17 +2523,22 @@ with st.expander("🔧 How to Set Up Postback URL"):
     - Check your webhook URL for incoming data
     - Verify transaction data is received
     
-    **4. Data You'll Receive:**
-    ```json
-    {
-      "user_id": "social_media_manager_user",
-      "survey_id": "12345",
-      "amount": "2.50",
-      "currency": "USD",
-      "status": "completed",
-      "timestamp": "2024-01-15T10:30:00Z"
-    }
-    ```
+        **4. Data You'll Receive:**
+     ```json
+     {
+       "user_id": "social_media_manager_user",
+       "survey_id": "12345",
+       "amount": "2.50",
+       "currency": "USD",
+       "status": "1", // 1 = pending, 2 = reversed
+       "trans_id": "123456789",
+       "timestamp": "2024-01-15T10:30:00Z"
+     }
+     ```
+     
+     **Status Values:**
+     - `status=1`: Transaction pending/completed
+     - `status=2`: Transaction reversed/cancelled
     
     **5. Production Setup:**
     - Replace webhook.site with your own server endpoint
