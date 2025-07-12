@@ -2355,6 +2355,15 @@ with tab5:
 st.markdown("---")
 st.header("💰 Earn Money with Surveys")
 
+# Status indicator
+col1, col2, col3 = st.columns(3)
+with col1:
+    st.success("✅ App ID: 28194")
+with col2:
+    st.info("📡 Postback: Configured")
+with col3:
+    st.warning("🔧 Widget: Testing Required")
+
 # Postback URL Configuration
 st.subheader("📡 Postback URL Setup")
 st.markdown("""
@@ -2500,7 +2509,40 @@ window.config = config;
 <script type="text/javascript" src="https://cdn.cpx-research.com/assets/js/script_tag_v2.0.js"></script>
 """
 
-st.markdown(cpx_paywall_html, unsafe_allow_html=True)
+# Use Streamlit components for better JavaScript support
+import streamlit.components.v1 as components
+
+# Create the CPX Research widget using components
+components.html(cpx_paywall_html, height=800, scrolling=True)
+
+# Alternative: Direct iframe approach (if CPX provides iframe URLs)
+st.subheader("🔄 Alternative: Direct Survey Links")
+st.markdown("""
+If the widget doesn't load, users can access surveys directly:
+""")
+
+# Create direct survey links
+survey_links_html = """
+<div style="display: flex; flex-wrap: wrap; gap: 10px; margin: 20px 0;">
+    <a href="https://wall.cpx-research.com/index.php?app_id=28194&ext_user_id=social_media_manager_user" 
+       target="_blank" 
+       style="background: #ffaf20; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+       🎯 Take Survey 1
+    </a>
+    <a href="https://wall.cpx-research.com/index.php?app_id=28194&ext_user_id=social_media_manager_user" 
+       target="_blank" 
+       style="background: #ff6b35; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+       💰 Earn Money Survey
+    </a>
+    <a href="https://wall.cpx-research.com/index.php?app_id=28194&ext_user_id=social_media_manager_user" 
+       target="_blank" 
+       style="background: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+       📊 Quick Survey
+    </a>
+</div>
+"""
+
+st.markdown(survey_links_html, unsafe_allow_html=True)
 
 # Postback URL Instructions
 with st.expander("🔧 How to Set Up Postback URL"):
