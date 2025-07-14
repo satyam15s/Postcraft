@@ -976,14 +976,16 @@ def get_trending_topics(subreddit: str, num: int) -> list[dict]:
             return topics
     
     # If user's subreddit fails, show warning and try fallback
-    st.warning(f"⚠️ Could not fetch posts from r/{clean_subreddit}. Trying fallback subreddits...")
+    st.warning(f"⚠️ Could not fetch posts from r/{clean_subreddit} (HTTP {resp.status_code}). Trying fallback subreddits...")
     
     # Try fallback subreddits
-    fallback_subreddits = ["memes", "funny", "todayilearned"]
+    fallback_subreddits = ["news", "pics", "memes", "funny", "todayilearned"]
     for fallback_sub in fallback_subreddits:
+        time.sleep(2)  # Add delay to avoid rate-limiting
         url = f"https://www.reddit.com/r/{fallback_sub}/hot.json?limit={num*2}"
         resp = requests.get(url, headers=headers)
         if resp.status_code != 200:
+            st.warning(f"⚠️ Fallback r/{fallback_sub} failed (HTTP {resp.status_code})")
             continue
         items = resp.json().get("data", {}).get("children", [])
         topics = []
