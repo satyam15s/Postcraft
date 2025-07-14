@@ -16,6 +16,7 @@ import tempfile
 import zipfile
 from PIL import Image
 import numpy as np
+import praw
 
 # Load environment variables
 load_dotenv()
@@ -952,57 +953,31 @@ Return only valid JSON.
             "innovation_gaps": [f"Lack of video content", f"Limited personalization", f"Missing community engagement"]
         }
 
+# Initialize PRAW Reddit client
+reddit = praw.Reddit(
+    client_id=os.getenv("REDDIT_CLIENT_ID"),
+    client_secret=os.getenv("REDDIT_CLIENT_SECRET"),
+    user_agent=os.getenv("REDDIT_USER_AGENT")
+)
+
 def get_trending_topics(subreddit: str, num: int) -> list[dict]:
-    headers = {"User-Agent": os.getenv("REDDIT_USER_AGENT")}
-    
-    # Clean the subreddit name (remove r/ prefix if present)
-    clean_subreddit = subreddit.replace("r/", "").strip()
-    
-    # Try the user's selected subreddit first
-    url = f"https://www.reddit.com/r/{clean_subreddit}/hot.json?limit={num*2}"
-    resp = requests.get(url, headers=headers)
-    
-    if resp.status_code == 200:
-        items = resp.json().get("data", {}).get("children", [])
-        topics = []
-        for item in items:
-            data = item["data"]
-            if data.get("stickied") or data.get("author") == "AutoModerator":
-                continue
-            topics.append({"title": data["title"], "url": data["url"]})
-            if len(topics) >= num:
+    """Fetch trending topics from Reddit using PRAW (authenticated)."""
+    try:
+        clean_subreddit = subreddit.replace("r/", "").strip()
+        sub = reddit.subreddit(clean_subreddit)
+        posts = []
+        for post in sub.hot(limit=num*2):
+            if not post.stickied:
+                posts.append({"title": post.title, "url": post.url})
+            if len(posts) >= num:
                 break
-        if topics:
-            return topics
-    
-    # If user's subreddit fails, show warning and try fallback
-    st.warning(f"⚠️ Could not fetch posts from r/{clean_subreddit} (HTTP {resp.status_code}). Trying fallback subreddits...")
-    
-    # Try fallback subreddits
-    fallback_subreddits = ["news", "pics", "memes", "funny", "todayilearned"]
-    for fallback_sub in fallback_subreddits:
-        time.sleep(2)  # Add delay to avoid rate-limiting
-        url = f"https://www.reddit.com/r/{fallback_sub}/hot.json?limit={num*2}"
-        resp = requests.get(url, headers=headers)
-        if resp.status_code != 200:
-            st.warning(f"⚠️ Fallback r/{fallback_sub} failed (HTTP {resp.status_code})")
-            continue
-        items = resp.json().get("data", {}).get("children", [])
-        topics = []
-        for item in items:
-            data = item["data"]
-            if data.get("stickied") or data.get("author") == "AutoModerator":
-                continue
-            topics.append({"title": data["title"], "url": data["url"]})
-            if len(topics) >= num:
-                break
-        if topics:
-            st.info(f"✅ Using posts from r/{fallback_sub} as fallback")
-            return topics
-    
-    # If all else fails, return generic topics
-    st.error(f"❌ Could not fetch posts from any subreddit. Using generic topics.")
-    return [{"title": f"Generic {clean_subreddit} topic {i+1}", "url": ""} for i in range(num)]
+        if posts:
+            return posts
+        else:
+            st.warning(f"⚠️ No posts found in r/{clean_subreddit}. Using generic topics.")
+    except Exception as e:
+        st.warning(f"⚠️ Error fetching posts from r/{subreddit}: {e}. Using generic topics.")
+    return [{"title": f"Generic {subreddit} topic {i+1}", "url": ""} for i in range(num)]
 
 def select_best_time(platform: str) -> str:
     return {"Instagram":"11:00 AM","LinkedIn":"09:00 AM","Twitter":"12:00 PM"}.get(platform,"10:00 AM")
