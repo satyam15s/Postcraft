@@ -1249,7 +1249,14 @@ if "brand_analysis" in st.session_state and st.session_state.brand_analysis is n
     with col1:
         st.metric("Industry", brand_analysis.get('industry_category', 'General'))
         target_audience = brand_analysis.get('target_audience', 'General audience')
-        st.metric("Target Audience", target_audience[:20] + "..." if len(target_audience) > 20 else target_audience)
+        if isinstance(target_audience, list):
+            target_audience_str = ", ".join(target_audience)
+        else:
+            target_audience_str = str(target_audience)
+        st.metric(
+            "Target Audience",
+            target_audience_str[:20] + "..." if len(target_audience_str) > 20 else target_audience_str
+        )
     
     with col2:
         best_platforms = brand_analysis.get('best_platforms', ['Instagram'])
