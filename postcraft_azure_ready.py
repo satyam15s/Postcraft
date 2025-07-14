@@ -1250,7 +1250,9 @@ if "brand_analysis" in st.session_state and st.session_state.brand_analysis is n
         st.metric("Industry", brand_analysis.get('industry_category', 'General'))
         target_audience = brand_analysis.get('target_audience', 'General audience')
         if isinstance(target_audience, list):
-            target_audience_str = ", ".join(target_audience)
+            target_audience_str = ", ".join(map(str, target_audience))
+        elif isinstance(target_audience, dict):
+            target_audience_str = "; ".join(f"{k}: {v}" for k, v in target_audience.items())
         else:
             target_audience_str = str(target_audience)
         st.metric(
