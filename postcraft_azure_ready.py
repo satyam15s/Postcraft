@@ -1592,8 +1592,13 @@ with tab3:
             
             st.subheader("🏷️ Hashtag Strategy")
             hashtag_categories = brand_analysis.get('hashtag_strategy', [])
-            for category in hashtag_categories:
-                st.write(f"• {category}")
+            if isinstance(hashtag_categories, list):
+                for category in hashtag_categories:
+                    st.write(f"• {category}")
+            elif isinstance(hashtag_categories, str):
+                st.write(f"• {hashtag_categories}")
+            else:
+                st.write("• No hashtag strategy available")
         
         with col2:
             st.subheader("🎯 Target Audience")
